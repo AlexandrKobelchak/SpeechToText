@@ -92,9 +92,7 @@ namespace Speech2Text
         }
 
         async static Task Main(string[] args)
-        {          
-
-
+        {   
 
             var speechConfig = SpeechConfig.FromSubscription("d5b68beeaf7c418786f5ce154597f181", "westeurope");
             speechConfig.SpeechRecognitionLanguage = "ru-RU";
@@ -105,9 +103,6 @@ namespace Speech2Text
             await synthesizer.ShowAvailableVoices("de-DE");
            
 
-            //await synthesizer.StartSpeakingTextAsync("This is test message");
-
-
             using var audioConfig = AudioConfig.FromDefaultMicrophoneInput();
             using var speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
@@ -116,22 +111,7 @@ namespace Speech2Text
                 Console.WriteLine(e.Result.Text);
                 var answer = await Translate(e.Result.Text);
                 var json = JsonConvert.DeserializeObject<Translations[]>(answer);
-                string en = json[0].translations[2].text;
-                string de = json[0].translations[1].text;
-                string fr = json[0].translations[0].text;
-
-                Console.WriteLine($"EN: {en}");
-                Console.WriteLine($"DE: {de}");
-                Console.WriteLine($"FR: {fr}");
-
-                speechConfig.SpeechSynthesisLanguage = "en-US";
-                await synthesizer.StartSpeakingTextAsync(en);
-
-                speechConfig.SpeechSynthesisLanguage = "de-DE";
-                await synthesizer.StartSpeakingTextAsync(de);
-
-                speechConfig.SpeechSynthesisLanguage = "fr-FR";
-                await synthesizer.StartSpeakingTextAsync(fr);
+                await WriteAndSpeech(speechConfig, synthesizer, json);
             };
 
             Console.WriteLine("Speak, please ...");
@@ -144,5 +124,24 @@ namespace Speech2Text
 
         }
 
+        private static async Task WriteAndSpeech(SpeechConfig speechConfig, SpeechSynthesizer synthesizer, Translations[]? json)
+        {
+            string en = json[0].translations[2].text;
+            string de = json[0].translations[1].text;
+            string fr = json[0].translations[0].text;
+
+            Console.WriteLine($"EN: {en}");
+            Console.WriteLine($"DE: {de}");
+            Console.WriteLine($"FR: {fr}");
+
+            speechConfig.SpeechSynthesisLanguage = "en-US";
+            await synthesizer.StartSpeakingTextAsync(en);
+
+            speechConfig.SpeechSynthesisLanguage = "de-DE";
+            await synthesizer.StartSpeakingTextAsync(de);
+
+            speechConfig.SpeechSynthesisLanguage = "fr-FR";
+            await synthesizer.StartSpeakingTextAsync(fr);
+        }
     }
 }
