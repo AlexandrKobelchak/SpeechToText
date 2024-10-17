@@ -67,39 +67,32 @@ namespace Speech2Text
 
                 // To find a voice that supports a specific locale, for example:
 
-                string? voiceName = null;
-                
+                             
                 foreach (var voice in result.Voices)
                 {
                     if (voice.Locale.Equals(voiceLocale))
-                    {
-                        voiceName = voice.Name;
-                        break;
+                    {                       
+                        Console.WriteLine($"Found {voiceLocale} voice: {voice.Name}");
+                        Console.WriteLine($" Gender: {voice.Gender}");
+                        Console.WriteLine($" Locale: {voice.Locale}");
+                        Console.WriteLine($" Path:   {voice.VoicePath}");
                     }
                 }
-
-                if (!string.IsNullOrEmpty(voiceName))
-                {
-                    Console.WriteLine($"Found {voiceLocale} voice: {voiceName}");
-                }
-
             }
             else if (result.Reason == ResultReason.Canceled)
             {
                 Console.Error.WriteLine($"CANCELED: ErrorDetails=\"{result.ErrorDetails}\"");
             }
-
         }
 
         async static Task Main(string[] args)
-        {   
+        {  
 
             var speechConfig = SpeechConfig.FromSubscription("d5b68beeaf7c418786f5ce154597f181", "westeurope");
             speechConfig.SpeechRecognitionLanguage = "ru-RU";
             speechConfig.SpeechSynthesisLanguage = "en-US";
 
             using var synthesizer = new SpeechSynthesizer(speechConfig, AudioConfig.FromDefaultSpeakerOutput());
-
             await synthesizer.ShowAvailableVoices("de-DE");
            
 
