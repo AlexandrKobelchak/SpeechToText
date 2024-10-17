@@ -1,11 +1,12 @@
 ﻿using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Newtonsoft.Json;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Speech2Text
 {
-    internal class Program
+    public static class Program
     { 
         class Translation
         {
@@ -48,22 +49,8 @@ namespace Speech2Text
             }
         }
 
-        async static Task Main(string[] args)
+        public async static Task ShowAvailableVoices(this SpeechSynthesizer synthesizer,  string voiceLocale)
         {
-
-            
-
-
-
-            var speechConfig = SpeechConfig.FromSubscription("d5b68beeaf7c418786f5ce154597f181", "westeurope");
-            speechConfig.SpeechRecognitionLanguage = "ru-RU";
-            speechConfig.SpeechSynthesisLanguage = "en-US";
-
-
-
-
-            using var synthesizer = new SpeechSynthesizer(speechConfig, AudioConfig.FromDefaultSpeakerOutput());
-
             // Gets a list of voices.
             using var result = await synthesizer.GetVoicesAsync("");
 
@@ -79,10 +66,9 @@ namespace Speech2Text
                 }*/
 
                 // To find a voice that supports a specific locale, for example:
-                
-                string? voiceName = null;
-                string voiceLocale = "en-US";
 
+                string? voiceName = null;
+                
                 foreach (var voice in result.Voices)
                 {
                     if (voice.Locale.Equals(voiceLocale))
@@ -96,13 +82,27 @@ namespace Speech2Text
                 {
                     Console.WriteLine($"Found {voiceLocale} voice: {voiceName}");
                 }
-                
+
             }
             else if (result.Reason == ResultReason.Canceled)
             {
                 Console.Error.WriteLine($"CANCELED: ErrorDetails=\"{result.ErrorDetails}\"");
             }
 
+        }
+
+        async static Task Main(string[] args)
+        {          
+
+
+
+            var speechConfig = SpeechConfig.FromSubscription("d5b68beeaf7c418786f5ce154597f181", "westeurope");
+            speechConfig.SpeechRecognitionLanguage = "ru-RU";
+            speechConfig.SpeechSynthesisLanguage = "en-US";
+
+            using var synthesizer = new SpeechSynthesizer(speechConfig, AudioConfig.FromDefaultSpeakerOutput());
+
+            await synthesizer.ShowAvailableVoices("de-DE");
            
 
             //await synthesizer.StartSpeakingTextAsync("This is test message");
