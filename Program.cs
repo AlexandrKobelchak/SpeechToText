@@ -1,24 +1,12 @@
 ﻿using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Newtonsoft.Json;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Speech2Text
 {
-    public static class Program
-    { 
-        class Translation
-        {
-            public string? text;
-            public string? to;
-        }
-        class Translations
-        {
-            public Translation[]? translations;
-        }
-
-     
+    public static partial class Program
+    {
         private static readonly string key = "7b7ee590b8944871a03aa37b8a27293c";
         private static readonly string endpoint = "https://api.cognitive.microsofttranslator.com/";
         private static readonly string location = "westeurope";
@@ -27,7 +15,7 @@ namespace Speech2Text
         {
             // Input and output languages are defined as parameters.
             string route = "/translate?api-version=3.0&from=ru&to=fr&to=de&to=en";
-            
+
             object[] body = new object[] { new { Text = textToTranslate } };
             var requestBody = JsonConvert.SerializeObject(body);
 
@@ -49,34 +37,21 @@ namespace Speech2Text
             }
         }
 
-        public async static Task ShowAvailableVoices(this SpeechSynthesizer synthesizer,  string voiceLocale)
+        public async static Task ShowAvailableVoices(this SpeechSynthesizer synthesizer, string voiceLocale)
         {
             // Gets a list of voices.
-            using var result = await synthesizer.GetVoicesAsync("");
+            using var result = await synthesizer.GetVoicesAsync(voiceLocale);
 
             if (result.Reason == ResultReason.VoicesListRetrieved)
             {
                 Console.WriteLine("Voices found:");
-                /*foreach (var voice in result.Voices)
+
+                foreach (var voice in result.Voices)
                 {
-                    Console.WriteLine(voice.Name);
+                    Console.WriteLine($"Found {voiceLocale} voice: {voice.Name}");
                     Console.WriteLine($" Gender: {voice.Gender}");
                     Console.WriteLine($" Locale: {voice.Locale}");
                     Console.WriteLine($" Path:   {voice.VoicePath}");
-                }*/
-
-                // To find a voice that supports a specific locale, for example:
-
-                             
-                foreach (var voice in result.Voices)
-                {
-                    if (voice.Locale.Equals(voiceLocale))
-                    {                       
-                        Console.WriteLine($"Found {voiceLocale} voice: {voice.Name}");
-                        Console.WriteLine($" Gender: {voice.Gender}");
-                        Console.WriteLine($" Locale: {voice.Locale}");
-                        Console.WriteLine($" Path:   {voice.VoicePath}");
-                    }
                 }
             }
             else if (result.Reason == ResultReason.Canceled)
@@ -86,15 +61,14 @@ namespace Speech2Text
         }
 
         async static Task Main(string[] args)
-        {  
-
+        {
             var speechConfig = SpeechConfig.FromSubscription("d5b68beeaf7c418786f5ce154597f181", "westeurope");
             speechConfig.SpeechRecognitionLanguage = "ru-RU";
             speechConfig.SpeechSynthesisLanguage = "en-US";
 
             using var synthesizer = new SpeechSynthesizer(speechConfig, AudioConfig.FromDefaultSpeakerOutput());
             await synthesizer.ShowAvailableVoices("de-DE");
-           
+
 
             using var audioConfig = AudioConfig.FromDefaultMicrophoneInput();
             using var speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
@@ -109,7 +83,7 @@ namespace Speech2Text
 
             Console.WriteLine("Speak, please ...");
             await speechRecognizer.StartContinuousRecognitionAsync();
-            
+
             Console.ReadKey();
 
             speechRecognizer?.StopContinuousRecognitionAsync();
